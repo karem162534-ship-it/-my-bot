@@ -2,14 +2,12 @@ import os
 import yt_dlp
 from pyrogram import Client, filters
 
-# قراءة التوكن من إعدادات رندر
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
 if not BOT_TOKEN:
-    print("خطأ: يرجى إضافة BOT_TOKEN في المنصة السحابية")
+    print("Error: BOT_TOKEN is missing")
     exit(1)
 
-# إعداد البوت
 app = Client(
     "x_downloader_bot",
     bot_token=BOT_TOKEN
@@ -18,7 +16,7 @@ app = Client(
 @app.on_message(filters.command("start"))
 async def start_command(client, message):
     await message.reply_text(
-        "مرحباً بك! أنا بوت التحميل الخاص بك.\nأرسل لي رابط الفيديو من أي منصة وسأقوم بتحميله وإرساله لك."
+        "Hello! I am your downloader bot.\nSend me a video link from any platform and I will download it for you."
     )
 
 @app.on_message(filters.text & ~filters.command("start"))
@@ -26,10 +24,10 @@ async def download_video(client, message):
     url = message.text.strip()
 
     if not url.startswith("http"):
-        await message.reply_text("الرجاء إرسال رابط صحيح يبدأ بـ http أو https")
+        await message.reply_text("Please send a valid link starting with http or https")
         return
 
-    status_message = await message.reply_text("...جاري التحميل")
+    status_message = await message.reply_text("Downloading...")
 
     try:
         ydl_opts = {
@@ -40,18 +38,17 @@ async def download_video(client, message):
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.download([url])
 
-        await status_message.edit_text("...جاري رفع الفيديو إليك")
+        await status_message.edit_text("Uploading video...")
         await message.reply_video("video.mp4")
         await status_message.delete()
 
     except Exception as e:
-        await status_message.edit_text(f"عذراً، حدث خطأ أثناء التحميل:\n{str(e)}")
+        await status_message.edit_text(f"An error occurred:\n{str(e)}")
 
     finally:
         if os.path.exists("video.mp4"):
             os.remove("video.mp4")
 
 if __name__ == "__main__":
-    print("...البوت يعمل الآن")
-app.run()
-
+    print("Bot is running now...")
+    app.run()
