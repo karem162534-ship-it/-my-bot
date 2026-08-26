@@ -53,4 +53,5 @@ async def download_video(client, message):
 
 if __name__ == "__main__":
     print("...البوت يعمل الآن")
-    app.run()
+app.run()
+
